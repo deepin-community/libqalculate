@@ -1,4 +1,22 @@
 #!/usr/bin/make -f
 
+export DEB_BUILD_MAINT_OPTIONS = hardening=+all reproducible=+fixfilepath
+DPKG_EXPORT_BUILDFLAGS = 1
+include /usr/share/dpkg/buildflags.mk
+
+export CXXFLAGS_FOR_BUILD=$(CXXFLAGS)
+export CPPFLAGS_FOR_BUILD=$(CPPFLAGS)
+export LDFLAGS_FOR_BUILD=$(LDFLAGS)
+
 %:
 	dh $@
+
+override_dh_auto_clean:
+	dh_auto_clean
+	rm -f po-defs/fixpo po-defs/fixed/.intltool-merge-cache* po-defs/fixed/*.po
+
+execute_after_dh_installdocs:
+	rm -rf debian/libqalculate-doc/usr/share/doc/libqalculate-dev/
+
+execute_before_dh_auto_build:
+	cd docs/reference && doxygen Doxyfile
